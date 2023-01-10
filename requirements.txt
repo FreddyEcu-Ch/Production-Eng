@@ -1,0 +1,6 @@
+list plotly-express==0.4.0con
+streamlit==1.8.0
+streamlit-option-menu==0.3.2
+pandas==1.4.2
+pillow==9.1.1
+
