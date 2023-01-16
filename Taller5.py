@@ -6,7 +6,7 @@ from streamlit_option_menu import option_menu
 from PIL import Image
 from collections import namedtuple
 from math import radians, acos, asin, cos, sin, atan, degrees, sqrt
-from utiilities import j,qo_darcy,aof,Qb,qo,qo_vogel,qo_standing,qo_ipr_compuesto,IPR_curve,IPR_curve_methods, IPR_Curve
+from utiilities import j,qo_darcy,aof,Qb,qo,qo_vogel,qo_standing,qo_ipr_compuesto,IPR_curve,IPR_curve_methods, IPR_Curve,pwf_darcy,pwf_vogel,f_darcy,sg_oil,sg_avg,gradient_avg,tdh_,Pgrav,F_,Pf_,Po_,Psys_
 
 # Insert an icon
 icon = Image.open("Resources/inflow.png")
@@ -176,3 +176,37 @@ if options == "Reservoir Potential":
         curva=IPR_Curve(q_test,pwf_test,pr,list_pwf,pb,ef=1,ef2=None,ax=None)
         st.pyplot(curva)
 
+
+elif options == "Nodal Analysis (Single phase flow)":
+    if st.checkbox("Pwf_Darcy"):
+        st.subheader("*Enter input values*")
+        q_test = st.number_input("Enter Q_tets value: ")
+        pwf_test = st.number_input("Enter pwf_test value: ")
+        Q = st.number_input("Enter Q value: ")
+        pr = st.number_input("Enter Pr value: ")
+        pb = st.number_input("Enter pb value: ")
+        ID = st.number_input("Enter ID value: ")
+        THP = st.number_input("Enter THP value: ")
+        wc = st.number_input("Enter wc value: ")
+        sgh2o=st.number_input("Enter SGH2O value: ")
+        densid=st.number_input("Enter Densidad Oil value: ")
+        TVD = st.number_input("Enter TVD value: ")
+        MD = st.number_input("Enter MD value: ")
+        st.subheader("*Show results Inflow*")
+        pwf_D=pwf_darcy(q_test,pwf_test,Q,pr,pb)
+        st.success(f" Pwf_Darcy = {pwf_D:.3f} psi")
+        F_darcy = f_darcy(Q, ID, C=120)
+        TDH = tdh_(THP, sg_avg, TVD, F_darcy, MD)
+        st.success(f" TDH = {TDH:.3f} ")
+        st.subheader("*Show results Outflow*")
+        pgrav=Pgrav(sg_avg,TVD)
+        st.success(f" Pgrav = {pgrav:.3f} ")
+        st.success(f" f = {F_darcy:.3f} ")
+        F=F_(f_darcy,MD)
+        st.success(f" F = {F:.3f} ")
+        Pf=Pf_(F,sg_avg)
+        st.success(f" Pf = {Pf:.3f} ")
+        Po = Po_(THP,Pgrav,Pf)
+        st.success(f" Po = {Po:.3f} ")
+        Psys = Psys_(Po,pwf_darcy)
+        st.success(f" Psys = {Psys:.3f} ")
