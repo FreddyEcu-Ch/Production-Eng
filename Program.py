@@ -203,29 +203,23 @@ elif options == "Nodal Analysis":
         TVD = st.number_input("Enter TVD value: ")
         MD = st.number_input("Enter MD value: ")
         IP = j(q_test, pwf_test, pr, pb, ef=1, ef2=None)
-        aof = aof(q_test, pwf_test, pr, pb, ef=1, ef2=None)
+        #aof = aof(q_test, pwf_test, pr, pb, ef=1, ef2=None)
         sgoil = sg_oil(API)
         sgavg = sg_avg(API, wc, sgh2o)
         GradientAvg= gradient_avg(API, wc, sgh2o)
-        q = [0, 750, 1400, 2250, 3000, 3750, 4500, 5250, 6000, 6750, 7500]
-        df = pd.DataFrame()
-        for i in q:
-            pwf = pwf_darcy(q_test, pwf_test, i, pr, pb)
-            f = f_darcy(i, ID, C=120)
-            F = f*MD
-            P_gravedad = GradientAvg*TVD
-            Pf = F*GradientAvg
-            Po = THP + Pf + P_gravedad
-            Psys = Po -pwf
-            df['Q(bpd)'] = i
-            df['pwf(bpd)'] = pwf
-            df['THP'] = THP
-            df['P_gravity(psi)'] = P_gravedad
-            df["f"] = f
-            df["F(ft)"] = F
-            df["Pf(psi)"] = Pf
-            df["Psys(psi)"] = Psys
-
+        columns = ['Q(bpd)', 'Pwf(psia)', 'THP(psia)', 'Pgravity(psia)', 'f', 'F(ft)', 'Pf(psia)', 'Po(psia)',
+                   'Psys(psia)']
+        df = pd.DataFrame(columns=columns)
+        df[columns[0]] = np.array([0, 750, 1400, 2250, 3000, 3750, 4500, 5250, 6000, 6750, 7500])
+        df[columns[1]] = df['Q(bpd)'].apply(lambda x: pwf_darcy(q_test, pwf_test, x, pr, pb))
+        df[columns[2]] = THP
+        df[columns[3]] = gradient_avg(API, wc, sgh2o) * TVD
+        df[columns[4]] = df['Q(bpd)'].apply(lambda x: f_darcy(x, ID,C=120))
+        df[columns[5]] = df['f'] * MD
+        df[columns[6]] = gradient_avg(API, wc, sgh2o) * df['F(ft)']
+        df[columns[7]] = df['THP(psia)'] + df['Pgravity(psia)'] + df['Pf(psia)']
+        df[columns[8]] = df['Po(psia)'] - df['Pwf(psia)']
+        df
 
 
 
